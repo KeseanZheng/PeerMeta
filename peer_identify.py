@@ -14,13 +14,11 @@ pd.set_option('expand_frame_repr', False)
 pd.set_option('display.max_rows', 500)
 
 def data_preprocess():
-    # 1. 读取文件
     df = pd.read_csv("D:\data\\firm_bus_text.csv",
                      usecols=["Symbol", "EndDate", "BusinessScope", 'LISTINGDATE'])
     df['Symbol'] = df['Symbol'].astype(str).str.zfill(6)
 
 
-    # 2. 从EndDate中提取年份并筛选数据
     df["Year"] = pd.to_datetime(df["EndDate"]).dt.year
     df = df[(pd.to_datetime(df['LISTINGDATE']) < pd.to_datetime("2020-12-31"))]
     df = df[df["Year"].between(2001, 2022)]
@@ -31,13 +29,11 @@ def data_preprocess():
     # df = df[df["bus_len"]>=10]
     # print(df.groupby('Year')['Symbol'].agg(['count']))
 
-    # # 3. 读取fraudnews_count.csv并获取非重复的Symbol值
     # fraud_symbols = pd.read_csv("fraudnews_count.csv")["Symbol"].astype(str).str.zfill(6).unique().tolist()
     # df = df[df["Symbol"].isin(fraud_symbols)]
     # # df.to_csv('temp.csv', encoding='utf-8-sig')
     # # exit()
 
-    # 分词
     def remove_non_chinese(string):
         if not isinstance(string, str):
             return ''
@@ -52,18 +48,15 @@ def data_preprocess():
     df.to_csv('data/BusinessScope_cut.csv', index=False, encoding='utf-8-sig')
 
 def bus_sim_gen():
-    # 使用doc2vec技术将BusinessScope列转化为向量
     df = pd.read_csv('data/BusinessScope_cut.csv')
     df["Year"] = pd.to_datetime(df["EndDate"]).dt.year
     df['BusinessScope_cut'] = df['BusinessScope_cut'].astype(str)
     # documents = [TaggedDocument(doc, [i]) for i, doc in enumerate(df["BusinessScope_cut"])]
     # model = Doc2Vec(documents, vector_size = 300, window = 5, min_count = 1, workers = 4)
     # model.save('model/doc2vec_bus')
-    # print("模型已保存")
     model = Doc2Vec.load('model/doc2vec_bus')
     df["Vector"] = df["BusinessScope_cut"].apply(lambda x: model.infer_vector(x.split()))
 
-    # 5. 计算余弦相似度
     results = []
     for year in tqdm(df["Year"].unique()):
         results = []
@@ -78,7 +71,7 @@ def bus_sim_gen():
                     "Similarity": sim
                 })
         sim_df = pd.DataFrame(results)
-        # 6. 保存到bus_sim.csv
+
         sim_df.to_csv("data/bus_sim"+str(year)+".csv", index=False)
 
 def bus_sim_discr():

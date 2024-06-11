@@ -13,4 +13,4 @@ The script FSFP_calc.py is capable of calculating the FSFP measures mentioned in
 
 The script peer_identify.py can draw the business similarity among firms and identify peer companies. The excel file business_texts.xlsx documents firms' business description which are crawled from the financial statements.
 
-The script detection_model.py provides the code of detetion model in the paper. The input variables are included in the csv file model_input.csv. Since the size of the file is too large, we uploaded it in Google Drive. Those interested in our sample can request it from the authors. 
+The script detection_model.py provides the code of detetion model in the paper. The input variables are included in the csv file model_input.csv.
